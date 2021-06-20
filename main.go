@@ -41,6 +41,7 @@ func restoreTty() {
 
 func completer(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
+		{Text: "check", Description: "Check all targets in config file."},
 		{Text: "check <URL>", Description: "Check if the page is public"},
 		{Text: "conf read", Description: "Read configuration file."},
 		{Text: "conf add <target>", Description: "Add target URL in configuration."},
@@ -52,7 +53,28 @@ func completer(d prompt.Document) []prompt.Suggest {
 func executer(com string) {
 	if strings.HasPrefix(com, "check") {
 		s := strings.Split(com, " ")
-		if len(s) != 2 {
+		if len(s) == 1 {
+			if len(target_urls) >= 1 {
+				res, err := cmd.CheckAll(target_urls)
+				if err != nil {
+					println(err.Error())
+					return
+				} else {
+					for ix, r := range res {
+						if r {
+							danger := color.New(color.FgRed, color.Bold).SprintFunc()
+							fmt.Printf("%v: %v\n", danger("PUBLIC "), target_urls[ix])
+						} else {
+							fmt.Printf("%v: %v\n", color.GreenString("private"), target_urls[ix])
+						}
+					}
+				}
+			} else {
+				println("Read config before check.")
+				return
+			}
+			return
+		} else if len(s) != 2 {
 			println("should specify one URL")
 			return
 		}
@@ -63,10 +85,10 @@ func executer(com string) {
 			os.Exit(0)
 		} else {
 			if result {
-				fmt.Printf("%v: %v\n", color.RedString("PUBLIC"), target)
+				danger := color.New(color.FgGreen, color.Bold).SprintFunc()
+				fmt.Printf("%v: %v\n", danger("PUBLIC "), target)
 			} else {
-				danger := color.New(color.FgRed, color.Bold).SprintFunc()
-				fmt.Printf("%v: %v\n", danger("private"), target)
+				fmt.Printf("%v: %v\n", color.GreenString("private"), target)
 			}
 		}
 	} else if strings.HasPrefix(com, "conf") {
