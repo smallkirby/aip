@@ -1,7 +1,9 @@
-# 🚧 UNDER CONSTRUCTION 🚧
-
 # AIP: Am I Public...?
-Check if you accidentally publish your pages.  
+Simple tool to check if you accidentally publish your pages.  
+Intended to be used as cron task.  
+
+
+![demo](img/1.gif)
 
 ## Progress
 | Status | Functionality |
@@ -9,6 +11,7 @@ Check if you accidentally publish your pages.
 | ⛈ | checker |
 | ⛈ | config |
 | ⛈ | non-interactive |
+| ⛈ | slack integration |
   
 ### legend
 - ☀️: completed
