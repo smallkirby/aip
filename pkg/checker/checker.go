@@ -26,7 +26,6 @@ func fetchPage(url string) (int, string, error) {
 // XXX not imp, just a mock
 func CheckPublic(url string) (bool, error) {
 	code, _, err := fetchPage(url)
-	println(code) // XXX
 	if err != nil {
 		return true, err
 	}

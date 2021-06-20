@@ -1,17 +1,21 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
 
 	"github.com/c-bata/go-prompt"
+	"github.com/fatih/color"
 	"github.com/pkg/term/termios"
 	"github.com/smallkirby/aip/cmd"
+	"github.com/smallkirby/aip/pkg/conf"
 	"golang.org/x/sys/unix"
 )
 
 var original_tty_attr *unix.Termios
+var target_urls []string
 
 func main() {
 	// go-prompt changes current tty attributes, and doesn't restore it...
@@ -38,6 +42,7 @@ func restoreTty() {
 func completer(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
 		{Text: "check <URL>", Description: "Check if the page is public"},
+		{Text: "conf read", Description: "Read configuration file."},
 		{Text: "exit", Description: "I miss you..."},
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
@@ -50,15 +55,31 @@ func executer(com string) {
 			println("should specify one URL")
 			return
 		}
-		if result, err := cmd.Check(s[1]); err != nil {
+		target := s[1]
+		if result, err := cmd.Check(target); err != nil {
 			log.Println(err)
 			restoreTty()
 			os.Exit(0)
 		} else {
 			if result {
-				println("⚠️　BE CAREFUL, IT MIGHT BE PUBLISHED. ⚠️")
+				fmt.Printf("%v: %v\n", color.RedString("PUBLIC"), target)
 			} else {
-				println("Yeah, it's private!")
+				danger := color.New(color.FgRed, color.Bold).SprintFunc()
+				fmt.Printf("%v: %v\n", danger("private"), target)
+			}
+		}
+	} else if strings.HasPrefix(com, "conf") {
+		s := strings.Split(com, " ")
+		if len(s) == 1 {
+			println("Invalid command: %v", com)
+			return
+		}
+		if s[1] == "read" {
+			if targets, err := conf.ReadConf(); err != nil {
+				log.Fatalln(err)
+			} else {
+				target_urls = targets
+				fmt.Printf("Set %v URL as targets.\n", len(target_urls))
 			}
 		}
 	} else if com == "exit" {

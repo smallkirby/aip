@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/c-bata/go-prompt v0.2.6 // indirect
+	github.com/fatih/color v1.12.0 // indirect
 	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
