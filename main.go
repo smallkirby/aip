@@ -55,20 +55,28 @@ func executer(com string) {
 		s := strings.Split(com, " ")
 		if len(s) == 1 {
 			if len(target_urls) >= 1 {
-				res, err := cmd.CheckAll(target_urls)
-				if err != nil {
-					println(err.Error())
-					return
-				} else {
-					for ix, r := range res {
-						if r {
+				safe_num := 0
+				danger_num := 0
+				error_num := 0
+
+				ch := make(chan cmd.BoolResult, len(target_urls))
+				go cmd.CheckAll(target_urls, ch)
+				for result := range ch {
+					if result.Error != nil {
+						println(result.Error.Error()) // not return
+						error_num += 1
+					} else {
+						if result.Result {
 							danger := color.New(color.FgRed, color.Bold).SprintFunc()
-							fmt.Printf("%v: %v\n", danger("PUBLIC "), target_urls[ix])
+							fmt.Printf("%v: %v\n", danger("PUBLIC "), result.URL)
+							danger_num += 1
 						} else {
-							fmt.Printf("%v: %v\n", color.GreenString("private"), target_urls[ix])
+							fmt.Printf("%v: %v\n", color.GreenString("private"), result.URL)
+							safe_num += 1
 						}
 					}
 				}
+				fmt.Printf("Result: %v public, %v private, %v errors\n", color.RedString(fmt.Sprintf("%v", danger_num)), color.GreenString(fmt.Sprintf("%v", safe_num)), color.BlueString(fmt.Sprintf("%v", error_num)))
 			} else {
 				println("Read config before check.")
 				return

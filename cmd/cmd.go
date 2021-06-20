@@ -7,6 +7,12 @@ import (
 	"github.com/smallkirby/aip/pkg/conf"
 )
 
+type BoolResult struct {
+	Result bool
+	URL    string
+	Error  error
+}
+
 func Check(target string) (bool, error) {
 	if _, err := url.ParseRequestURI(target); err != nil {
 		return false, err
@@ -14,15 +20,15 @@ func Check(target string) (bool, error) {
 	return checker.CheckPublic(target)
 }
 
-func CheckAll(targets []string) (result []bool, reserr error) {
+func CheckAll(targets []string, ch chan BoolResult) {
 	for _, target := range targets {
 		res, err := Check(target)
 		if err != nil {
-			return nil, err
+			ch <- BoolResult{false, "", err}
 		}
-		result = append(result, res)
+		ch <- BoolResult{res, target, nil}
 	}
-	return
+	close(ch)
 }
 
 func ReadConf() (targets []string, e error) {
