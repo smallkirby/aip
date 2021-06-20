@@ -17,3 +17,7 @@ func Check(target string) (bool, error) {
 func ReadConf() (targets []string, e error) {
 	return conf.ReadConf()
 }
+
+func AddConf(target string) error {
+	return conf.AddConf([]string{target})
+}

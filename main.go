@@ -43,6 +43,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 	s := []prompt.Suggest{
 		{Text: "check <URL>", Description: "Check if the page is public"},
 		{Text: "conf read", Description: "Read configuration file."},
+		{Text: "conf add <target>", Description: "Add target URL in configuration."},
 		{Text: "exit", Description: "I miss you..."},
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
@@ -57,7 +58,7 @@ func executer(com string) {
 		}
 		target := s[1]
 		if result, err := cmd.Check(target); err != nil {
-			log.Println(err)
+			log.Println(err.Error())
 			restoreTty()
 			os.Exit(0)
 		} else {
@@ -71,15 +72,24 @@ func executer(com string) {
 	} else if strings.HasPrefix(com, "conf") {
 		s := strings.Split(com, " ")
 		if len(s) == 1 {
-			println("Invalid command: %v", com)
+			fmt.Printf("Invalid command: %v\n", com)
 			return
 		}
 		if s[1] == "read" {
 			if targets, err := conf.ReadConf(); err != nil {
-				log.Fatalln(err)
+				log.Fatalln(err.Error())
 			} else {
 				target_urls = targets
 				fmt.Printf("Set %v URL as targets.\n", len(target_urls))
+			}
+		} else if s[1] == "add" {
+			if len(s) != 3 {
+				fmt.Printf("Invalid command: %v\n", com)
+				return
+			}
+			if err := cmd.AddConf(s[2]); err != nil {
+				println(err.Error())
+				return
 			}
 		}
 	} else if com == "exit" {
