@@ -9,11 +9,15 @@ run:
 build:
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(BINARY_NAME)
 
+release:
+	$(GOBUILD) -ldflags "-s -w" -o $(BINARY_NAME)
+
 fmt: 
 	find . -type f -name "*.go" | xargs -i $(GOCMD) fmt {}
 
 install: Makefile
-	$(MAKE) build
+	$(MAKE) release
 	cp ./aip /usr/bin/aip
 
-.PHONY: fmt build install run
+
+.PHONY: fmt build install run release
