@@ -12,4 +12,8 @@ build:
 fmt: 
 	find . -type f -name "*.go" | xargs -i $(GOCMD) fmt {}
 
-.PHONY: fmt build
+install: Makefile
+	$(MAKE) build
+	sudo cp ./aip /usr/bin/aip
+
+.PHONY: fmt build install run
