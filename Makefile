@@ -14,6 +14,6 @@ fmt:
 
 install: Makefile
 	$(MAKE) build
-	sudo cp ./aip /usr/bin/aip
+	cp ./aip /usr/bin/aip
 
 .PHONY: fmt build install run
