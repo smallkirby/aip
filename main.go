@@ -20,6 +20,7 @@ type FlagContext struct {
 	quiet          *bool
 	noninteractive *bool
 	version        *bool
+	mail           *bool
 	conffile       *string
 }
 
@@ -104,6 +105,11 @@ func doNonInteractive() {
 		}
 	} else {
 		fmt.Printf("Result: %v public, %v private, %v errors\n", color.RedString(fmt.Sprintf("%v", danger_num)), color.GreenString(fmt.Sprintf("%v", safe_num)), color.BlueString(fmt.Sprintf("%v", error_num)))
+	}
+	if *context.mail {
+		if err := cmd.Mail(target_urls, danger_urls); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
 	}
 }
 
@@ -207,6 +213,7 @@ func parseArgs() {
 	context.help = flag.Bool("help", false, "show help.")
 	context.quiet = flag.Bool("quiet", false, "silent mode. available only in non-interactive mode.")
 	context.version = flag.Bool("version", false, "show version information.")
+	context.mail = flag.Bool("mail", false, "send the result to specified e-mail.")
 	context.noninteractive = flag.Bool("n", false, "non-interactive mode.")
 	context.conffile = flag.String("f", "", "specify config file.")
 	flag.Parse()

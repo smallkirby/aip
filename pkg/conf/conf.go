@@ -30,6 +30,38 @@ func confirmConfExists() (string, error) {
 	return conffile, nil
 }
 
+func GetMail() (string, error) {
+	homedir, _ := os.UserHomeDir()
+	confdir := filepath.Join(homedir, ".aip")
+	// check if the dir/file exists
+	if _, err := os.Stat(confdir); os.IsNotExist(err) {
+		return "", errors.New(fmt.Sprintf("Failed to open config directory at %v.\n%v", confdir, err.Error()))
+	}
+	conffile := filepath.Join(confdir, "mail.conf")
+	if stat, err := os.Stat(conffile); os.IsNotExist(err) {
+		return "", errors.New(fmt.Sprintf("Failed to open config file at %v.\n%v\n", conffile, err.Error()))
+	} else {
+		if stat.Mode() != 0600 {
+			return "", errors.New(fmt.Sprintf("Invalid permission for config file(%v): %v", conffile, stat.Mode()))
+		}
+	}
+
+	fbytes, err := os.ReadFile(conffile)
+	if err != nil {
+		return "", err
+	}
+	fstr := string(fbytes)
+	if fstr[len(fstr)-1] == '\n' {
+		fstr = fstr[:len(fstr)-1]
+	}
+	lines := strings.Split(fstr, "\n")
+	if len(lines) != 1 {
+		return "", errors.New(fmt.Sprintf("Invalid format of config file(%v).", conffile))
+	}
+
+	return lines[0], nil
+}
+
 func AddConf(targets []string) error {
 	conffile, err := confirmConfExists()
 	if err != nil {
